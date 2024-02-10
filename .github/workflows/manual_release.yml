@@ -73,7 +73,7 @@ jobs:
         if: ${{ needs.draftInformation.outputs.draft_changelog != '' }}
         env:
           CHANGELOG: = ${{ needs.draftInformation.outputs.draft_changelog }}
-        run: ./gradlew patchChangelog --release-note="$CHANGELOG" -PrepositoryUrl="${{ github.server_url }}/${{ github.repository }}
+        run: ./gradlew patchChangelog --release-note="$CHANGELOG" -PrepositoryUrl="${{ github.server_url }}/${{ github.repository }}"
 
       - name: Build plugin
         run: ./gradlew build
