@@ -79,4 +79,4 @@ jobs:
           gh release create v${{ needs.build.outputs.version }} \
             --draft \
             --title "v${{ needs.build.outputs.version }}" \
-            --notes "Adjust changelog and version before release"
+            --notes "### Added\nTODO"
