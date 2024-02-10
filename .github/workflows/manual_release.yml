@@ -36,8 +36,13 @@ jobs:
           --jq '.[] | select(.draft == true) | .body')"
           
           echo "draft_version=$DRAFT_VERSION" >> $GITHUB_OUTPUT
-          echo "draft_changelog=$DRAFT_CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          
+          {
+            echo "draft_changelog<<EOF"
+            echo "$DRAFT_CHANGELOG"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
     
   createPR:
     name: Create PR
