@@ -36,7 +36,7 @@ jobs:
           --jq '.[] | select(.draft == true) | .body')"
           
           echo "draft_version=$DRAFT_VERSION" >> $GITHUB_OUTPUT
-          echo "draft_changelog=$DRAFT_CHANGELOG" >> $GITHUB_OUTPUT
+          echo "draft_changelog='$DRAFT_CHANGELOG'" >> $GITHUB_OUTPUT
     
   createPR:
     name: Create PR
