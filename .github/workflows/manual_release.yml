@@ -1,0 +1,25 @@
+#https://docs.github.com/de/rest/releases/releases?apiVersion=2022-11-28#list-releases
+name: Manual release PR
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    name: Create PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Export Properties
+        id: properties
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          DRAFT_VERSION="$(gh api repos/{owner}/{repo}/releases \
+          --jq '.[] | select(.draft == true) | .tag_name')"
+          DRAFT_CHANGELOG="$(gh api repos/{owner}/{repo}/releases \
+          --jq '.[] | select(.draft == true) | .body')"
+          
+          echo "version=$DRAFT_VERSION" >> $GITHUB_OUTPUT
+          echo "changelog=$DRAFT_CHANGELOG" >> $GITHUB_OUTPUT
