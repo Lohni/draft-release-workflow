@@ -1,15 +1,13 @@
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
-name: Create Release with Asset
-on:
-  workflow_run:
-    workflows: [ Build ]
-    types: [ completed ]
-
 # Run when a release commit is successfully built in the main branch
+name: Release draft and upload asset
+on:
+  workflow_call:
+
 jobs:
-  on-success:
+  handle_release_workflow:
+    name: Release draft
     runs-on: ubuntu-latest
-    if: "startsWith('${{ github.event.workflow_run.head_commit.message }}', 'Release v')"
     permissions:
       contents: write
     steps:

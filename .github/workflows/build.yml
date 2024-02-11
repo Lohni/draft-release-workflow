@@ -81,37 +81,19 @@ jobs:
           name: tests-result
           path: ${{ github.workspace }}/build/reports/tests
 
-  # Create a draft release
-  # Exclude release commits, as in this case, the current draft will be automatically released after successfully building/testing
-  releaseDraft:
-    if: github.event_name != 'pull_request' && "!startsWith('${{ github.event.workflow_run.head_commit.message}}', 'Release ${{ github.event.workflow_run.head_commit.tag }}')"
+  # Call Workflow responsible for creating draft releases
+  # Exclude release commits, as in this case, the existing draft will be released
+  createDraft:
     needs: [build, test]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v4
+    name: Create draft release
+    if: github.event_name != 'pull_request' && !startsWith(github.event.push.head_commit.message, 'Release v')
+    uses: ./.github/workflows/create_draft.yml
+    with:
+      current_version: ${{ needs.build.outputs.version }}
 
-      # Remove old release drafts by using the curl request for the available releases with a draft flag
-      - name: Remove Old Release Drafts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api repos/{owner}/{repo}/releases \
-          --jq '.[] | select(.draft == true) | .id' \
-          | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
-
-      # Create a new release draft which is not publicly visible
-      # This can be used as a template for the final release
-      # Project version and template have to be added/confirmed manually
-      - name: Create Release Draft
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create v${{ needs.build.outputs.version }} \
-            --draft \
-            --title "v${{ needs.build.outputs.version }}" \
-            --notes "### Added
-            TODO"
+  # Call Workflow responsible for releasing the current draft release
+  releaseDraft:
+    needs: [build, test]
+    name: Release draft and upload asset
+    if: github.event_name != 'pull_request' && startsWith(github.event.push.head_commit.message, 'Release v')
+    uses: ./.github/workflows/release_draft.yml
