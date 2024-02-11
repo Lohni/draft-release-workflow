@@ -109,13 +109,24 @@ jobs:
           --jq '.[] | select(.draft == true) | .id' \
           | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
 
-      # Create a new release draft which is not publicly visible and requires manual acceptance
+      # Create a new release draft which is not publicly visible
+      # The changelog and project version created by the manual_release workflow is dependent on the content of this draft
       - name: Create Release Draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          CHANGELOG="$(./gradlew getChangelog --no-header --console=plain -q)"
+          if [ -z "$CHANGELOG"]
+          then
+            CHANGELOG="### Added
+            TODO"
+          fi
+          
           gh release create v${{ needs.build.outputs.version }} \
             --draft \
             --title "v${{ needs.build.outputs.version }}" \
-            --notes "### Added
-            TODO"
+            --notes "$(cat << 'EOM'
+            "$CHANGELOG" 
+            EOM
+            )"
