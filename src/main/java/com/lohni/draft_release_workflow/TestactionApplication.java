@@ -1,4 +1,4 @@
-package com.lohni.testaction;
+package com.lohni.draft_release_workflow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,5 +1,5 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
-# actions Changelog
+# draft-release-workflow Changelog
 ## [Unreleased]
 
-[Unreleased]: https://github.com/Lohni/commits/HEAD
+[Unreleased]: https://github.com/Lohni/draft-release-workflow/commits/HEAD
