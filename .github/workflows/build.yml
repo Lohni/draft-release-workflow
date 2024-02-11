@@ -82,8 +82,9 @@ jobs:
           path: ${{ github.workspace }}/build/reports/tests
 
   # Create a draft release
+  # Exclude release commits, as in this case, the current draft will be automatically released after successfully building/testing
   releaseDraft:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && "!startsWith('${{ github.event.workflow_run.head_commit.message}}', 'Release ${{ github.event.workflow_run.head_commit.tag }}')"
     needs: [build, test]
     runs-on: ubuntu-latest
     permissions:
@@ -92,13 +93,6 @@ jobs:
       # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
-
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
 
       # Remove old release drafts by using the curl request for the available releases with a draft flag
       - name: Remove Old Release Drafts
@@ -110,23 +104,14 @@ jobs:
           | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
 
       # Create a new release draft which is not publicly visible
-      # The changelog and project version created by the manual_release workflow is dependent on the content of this draft
+      # This can be used as a template for the final release
+      # Project version and template have to be added/confirmed manually
       - name: Create Release Draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
         run: |
-          CHANGELOG="$(./gradlew getChangelog --no-header --console=plain -q)"
-          if [ -z "$CHANGELOG"]
-          then
-            CHANGELOG="### Added
-            TODO"
-          fi
-          
           gh release create v${{ needs.build.outputs.version }} \
             --draft \
             --title "v${{ needs.build.outputs.version }}" \
-            --notes "$(cat << 'EOM'
-            "$CHANGELOG" 
-            EOM
-            )"
+            --notes "### Added
+            TODO"

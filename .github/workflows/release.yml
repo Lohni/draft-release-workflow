@@ -9,7 +9,7 @@ on:
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: "contains(github.event.workflow_run.head_commit.message, 'Release ${{ github.event.workflow_run.head_commit.tag }}')"
+    if: "startsWith('${{ github.event.workflow_run.head_commit.message }}', 'Release v')"
     permissions:
       contents: write
     steps:
