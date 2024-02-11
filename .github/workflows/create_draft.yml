@@ -1,0 +1,42 @@
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+# Create a draft release
+name: Create draft release
+on:
+  workflow_call:
+    inputs:
+      current_version:
+        required: true
+        type: string
+
+jobs:
+  releaseDraft:
+    name: Create draft release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      # Remove old release drafts by using the curl request for the available releases with a draft flag
+      - name: Remove Old Release Drafts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/{owner}/{repo}/releases \
+          --jq '.[] | select(.draft == true) | .id' \
+          | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
+
+      # Create a new release draft which is not publicly visible
+      # This can be used as a template for the final release
+      # Project version and template have to be added/confirmed manually
+      - name: Create Release Draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v${{ inputs.current_version }} \
+            --draft \
+            --title "v${{ inputs.current_version }}" \
+            --notes "### Added
+            TODO"
