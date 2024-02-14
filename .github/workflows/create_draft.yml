@@ -15,9 +15,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Check out current repository
+      # Check out current repository with whole history for draft template
       - name: Fetch Sources
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Remove old release drafts by using the curl request for the available releases with a draft flag
       - name: Remove Old Release Drafts
@@ -31,12 +33,28 @@ jobs:
       # Create a new release draft which is not publicly visible
       # This can be used as a template for the final release
       # Project version and template have to be added/confirmed manually
+      # Gets all commit messages since the last tag
+      # If no tag is present, get every commit message
       - name: Create Release Draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set +e
+          LOG_SINCE="HEAD"
+          LATEST_TAG="$(git describe --tags)"
+          if [[ exitcode == 0 ]]
+          then
+            LOG_SINCE="$LATEST_TAG..HEAD"
+          fi
+          
+          CHANGES="$(git log $LOG_SINCE --oneline | cut -c 8- | xargs -I {} echo '- {}')"
+          if [[ -z "$CHANGES" ]]
+          then
+            CHANGES="### Added
+            TODO"
+          fi 
+          
           gh release create v${{ inputs.current_version }} \
             --draft \
             --title "v${{ inputs.current_version }}" \
-            --notes "### Added
-            TODO"
+            --notes "$CHANGES"
