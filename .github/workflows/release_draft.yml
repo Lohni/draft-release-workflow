@@ -42,6 +42,7 @@ jobs:
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
       # Release current draft release
+      #https://cli.github.com/manual/gh_release_edit
       - name: Release Draft
         if: steps.properties.outputs.release_tag == github.event.workflow_run.head_commit.tag
         env:
