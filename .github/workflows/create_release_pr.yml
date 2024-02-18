@@ -24,6 +24,21 @@ jobs:
           distribution: zulu
           java-version: 17
 
+      # Update release tag to version specified in title (vX.Y.Z)
+      - name: Update Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          CURR_TAG="$(gh api repos/{owner}/{repo}/releases \
+          --jq '.[] | select(.draft == true) | .tag_name')"
+          
+          TITLE_VERSION="$(gh api repos/{owner}/{repo}/releases \
+          --jq '.[] | select(.draft == true) | .name' \
+          | grep -Po 'v([\d.]{1,}){3}')"
+          
+          gh release edit $CURR_TAG --tag $TITLE_VERSION
+
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
       - name: Export Properties
         id: properties
@@ -113,7 +128,7 @@ jobs:
             || true
 
           gh pr create \
-            --title "Release - \`$VERSION\`" \
+            --title "Release - \`v$VERSION\`" \
             --body "Current pull request contains patched \`CHANGELOG.md\` file for the \`$VERSION\` version." \
             --label "$LABEL" \
             --head $BRANCH
