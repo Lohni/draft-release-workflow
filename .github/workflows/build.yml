@@ -1,10 +1,10 @@
+# Run on pull requests and main branch commits
 name: Build
 on:
   push:
     branches: [ main ]
   pull_request:
 
-# Run on pull requests and main branch commits
 jobs:
   build:
     name: Build
@@ -84,8 +84,8 @@ jobs:
   # Call Workflow responsible for creating draft releases
   # Exclude release commits, as in this case, the existing draft will be released
   createDraft:
+    name: Create Draft
     needs: [build, test]
-    name: Create draft release
     if: github.event_name != 'pull_request' && !startsWith(github.event.push.head_commit.message, 'Release v')
     uses: ./.github/workflows/create_draft.yml
     with:
@@ -93,7 +93,7 @@ jobs:
 
   # Call Workflow responsible for releasing the current draft release
   releaseDraft:
+    name: Release Draft
     needs: [build, test]
-    name: Release draft and upload asset
     if: github.event_name != 'pull_request' && startsWith(github.event.push.head_commit.message, 'Release v')
     uses: ./.github/workflows/release_draft.yml
