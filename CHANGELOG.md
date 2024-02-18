@@ -4,9 +4,4 @@
 
 ## [Unreleased]
 
-## [0.0.1] - 2024-02-17
-
-- Create initial release
-
-[Unreleased]: https://github.com/Lohni/draft-release-workflow/compare/v0.0.1...HEAD
-[0.0.1]: https://github.com/Lohni/draft-release-workflow/commits/v0.0.1
+[Unreleased]: https://github.com/Lohni/draft-release-workflow/compare/HEAD
