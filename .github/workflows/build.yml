@@ -86,7 +86,7 @@ jobs:
   createDraft:
     name: Create Draft
     needs: [build, test]
-    if: github.event_name != 'pull_request' && !startsWith(github.event.push.head_commit.message, 'Release v')
+    if: github.event_name != 'pull_request' && !startsWith(github.event.head_commit.message, 'Release v')
     uses: ./.github/workflows/create_draft.yml
     with:
       current_version: ${{ needs.build.outputs.version }}
@@ -95,5 +95,5 @@ jobs:
   releaseDraft:
     name: Release Draft
     needs: [build, test]
-    if: github.event_name != 'pull_request' && startsWith(github.event.push.head_commit.message, 'Release v')
+    if: github.event_name != 'pull_request' && startsWith(github.event.head_commit.message, 'Release v')
     uses: ./.github/workflows/release_draft.yml
