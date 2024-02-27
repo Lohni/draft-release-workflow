@@ -44,7 +44,6 @@ jobs:
       # Release current draft release
       #https://cli.github.com/manual/gh_release_edit
       - name: Release Draft
-        if: steps.properties.outputs.release_tag == github.event.workflow_run.head_commit.tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -60,7 +59,6 @@ jobs:
 
       # Upload build artifact as a release asset
       - name: Upload release Asset
-        if: steps.properties.outputs.release_tag == github.event.workflow_run.head_commit.tag
         env:
           GIHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ steps.properties.outputs.release_tag }} ./build/libs/*
